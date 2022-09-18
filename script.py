@@ -28,27 +28,49 @@ def get_page(url):
 
 if __name__=="__main__":
     
-    html = get_page('https://www.livelib.ru/reviews/~2#reviews')
+    url = 'https://www.livelib.ru/reviews/'
+    
+    dataset = dict()
+    zero = 0
+    one = 0
+    two = 0
+    three = 0
+    four = 0
+    five = 0
+    
+    html = get_page(url)
     
     if html == -1 : 
-        print("No connection")
-        exit()
+            print("No connection")
+            exit()
+            
+    for i in range (1,9999):
+        html = get_page(url+'~'+str(i)+'#reviews')
+        if html == -1 : break
         
-    marks = list()
-    
-    for item in html.findAll('span',class_='lenta-card__mymark'):
-        marks.append(item.text.strip())
         
-    names = list()
+        marks = list()
     
-    for item in html.findAll('a', class_='lenta-card__book-title'):
-        names.append(item.text.strip())
+        for item in html.findAll('span',class_='lenta-card__mymark'):
+            marks.append(item.text.strip())
         
-    comments = list()
+        names = list()
     
-    for item in html.findAll('div',id='lenta-card__text-review-escaped'):
-        comments.append(item.text.strip())
+        for item in html.findAll('a', class_='lenta-card__book-title'):
+            names.append(item.text.strip())
+        
+        comments = list()
     
+        for item in html.findAll('div',id='lenta-card__text-review-escaped'):
+            comments.append(item.text.strip())
+            
+        for j in range(marks.__len__()):
+            dataset.update(
+                {
+                    names[j]:[comments[j],marks[j]]}
+            )
+    
+    """
     print(marks)
     
     print(names)
@@ -57,6 +79,8 @@ if __name__=="__main__":
     for comment in comments:
         outFile.write(comment.encode('utf-8'))
         outFile.write('\n\n\n'.encode('utf-8'))
+    """
+    
     
     
             
