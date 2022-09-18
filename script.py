@@ -65,10 +65,25 @@ if __name__=="__main__":
             comments.append(item.text.strip())
             
         for j in range(marks.__len__()):
-            dataset.update(
-                {
-                    names[j]:[comments[j],marks[j]]}
-            )
+            condidate = {names[j]:[comments[j],marks[j]]}
+            if condidate[names[j]][1] < 1 : 
+                zero+=1
+                dataset.update(condidate)
+            elif condidate[names[j]][1] < 2 : 
+                one+=1
+                dataset.update(condidate)
+            elif condidate[names[j]][1] < 3 : 
+                two+=1
+                dataset.update(condidate)
+            elif condidate[names[j]][1] < 4 : 
+                three+=1
+                dataset.update(condidate)
+            elif condidate[names[j]][1] < 5 : 
+                four+=1
+                dataset.update(condidate)
+            elif condidate[names[j]][1] == 5 : 
+                five+=1
+                dataset.update(condidate)
     
     """
     print(marks)
