@@ -11,7 +11,9 @@ class Comment:
     def __init__(self,name,comment,mark):
         if name != '': self.name = name
         if comment!='': self.comment = comment
-        if mark<=5 and mark >= 0: self.mark = mark
+        if mark<=5 and mark >= 0: self.mark = int(mark)
+    
+    def get_mark(self): return self.mark
     
     def print_values(self):
         print(f"Name:{self.name}\nMark: {self.mark}\nComment: {self.comment}")
@@ -112,7 +114,11 @@ if __name__=="__main__":
     
     create_repo()
     
-    counter = 0
+    dataset.sorted(dataset, key = lambda comment: comment.get_mark())
+    
+    for elem in dataset:
+        elem.print_value()
+        print('\n'*3)
     
     for comment in dataset:
         filename = 'C:\\Users\\RELOAD\\Desktop\\Уник\\прикладное пр-е\\FirstLabParser\\Application-programming\\dataset\\'+str(comment.mark[0])
