@@ -4,8 +4,9 @@ import requests
 from bs4 import BeautifulSoup as BS
 import os
 import time
-#import HAND_MADE_PROXY
+from fake_useragent import UserAgent
 
+ua = UserAgent()
 class Comment:
     
     def __init__(self,name,comment,mark):
@@ -21,10 +22,6 @@ class Comment:
     def get_mark(self): return self.mark
     def get_name(self): return self.name
     def get_comment(self): return self.comment
-        
-headers = {
-    'User-Agent':'Mozilla/5.0'
-}
 
 def create_repo():
     os.mkdir("dataset")
@@ -32,28 +29,36 @@ def create_repo():
         os.mkdir("dataset/"+str(i))
         
 def get_page(url):
+    r = requests.get(url,headers={'User-Agent':ua.random})
     time.sleep(3)
-    r = requests.get(url,headers=headers)
     if(r.status_code == 200) : 
-        print(f'Statu code: {r.status_code}')
+        print(f'Status code: {r.status_code}')
         return BS(r.content,'html.parser')
     else : 
         print("No connection")
         exit()
     
 def get_marks(articles):
+    if len(articles) < 1 : 
+        return -1
     marks = list()
     for article in articles:
-        marks.append(article.find('div', class_='lenta-card').find('h3', class_='lenta-card__title').find('span', class_='lenta-card__mymark').text.strip())
+        mark = article.find('div', class_='lenta-card').find('h3', class_='lenta-card__title').find('span', class_='lenta-card__mymark').text.strip()
+        marks.append(mark)
     return marks
 
 def get_names(articles):
+    if len(articles) < 1 : 
+        return -1
     names = list()
     for article in articles:
-        names.append(article.find('div', class_='lenta-card').find('div', class_='lenta-card-book__wrapper').find('a', class_='lenta-card__book-title').text.strip())
+        name = article.find('div', class_='lenta-card').find('div', class_='lenta-card-book__wrapper').find('a', class_='lenta-card__book-title').text.strip()
+        names.append(name)
     return names
         
 def get_comments_texts(articles):
+    if len(articles) < 1 : 
+        return -1
     comments_texts = list()
     comments_urls = list()
     for article in articles:
@@ -84,18 +89,31 @@ def parse_pages(max_num_of_requests, least_num_of_marks):
     five=0
     
     for i in range (1,max_num_of_requests):
-        print(i)
-        soup = get_page(url+'~'+str(i)+'#reviews')
-        articles = soup.find('main', class_='main-body page-content').find('section', class_='lenta__content').findAll('article', class_='review-card lenta__item')
         
+        print(f'Страница: {i}')
+        
+        soup = get_page(url+'~'+str(i)+'#reviews')
+        if soup.find('h1').text == 'Пожалуйста, подождите пару секунд, идет перенаправление на сайт...':
+            print("Вылезла капча")
+            continue
+        
+        try:
+            articles = soup.find('main', class_='main-body page-content').find('section', class_='lenta__content').find_all('article', class_='review-card lenta__item')
+        except AttributeError:
+            print(articles)
+            continue
+            
         #marks
         marks = get_marks(articles)
+        if marks == -1: continue
         
         #names
         names = get_names(articles)
+        if names == -1: continue
         
         #texts
         comments_texts = get_comments_texts(articles)
+        if comments_texts == -1: continue
         
         for j in range(len(marks)):
             condidate = Comment(names[j],comments_texts[j],float(marks[j]))
@@ -133,7 +151,7 @@ if __name__=="__main__":
     
     url = 'https://www.livelib.ru/reviews/'
     
-    least_num_of_marks = 1000
+    least_num_of_marks = 3
     max_num_of_requests = 10000
             
     dataset = parse_pages(max_num_of_requests, least_num_of_marks)
