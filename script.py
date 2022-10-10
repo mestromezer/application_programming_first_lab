@@ -62,7 +62,6 @@ def get_marks(articles):
             marks.append(mark)
         except AttributeError as e:
             print("Не найдена оценка")
-            print(e.name)
             return -1
     return marks
 
@@ -81,7 +80,6 @@ def get_names(articles):
             names.append(name)
         except AttributeError as e:
             print("Не найдено название")
-            print(e.name)
             return -1
     return names
 
@@ -100,7 +98,6 @@ def get_comments_texts(articles):
             comments_texts.append(comment)
         except AttributeError as e:
             print("Не найден комментарий")
-            print(e.name)
             return -1
 
     return comments_texts
@@ -148,7 +145,7 @@ def parse_pages(max_num_of_requests, least_num_of_marks):
                 .find_all("article", class_="review-card lenta__item")
             )
         except AttributeError as e:
-            print(e.name)
+            print('Не удалось загрузить страницу')
             continue
 
         # marks
